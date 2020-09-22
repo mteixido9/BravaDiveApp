@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="80dp"
+    android:layout_height="80dp"
+    android:layout_margin="8dp"
+    android:elevation="24dp"
+    android:id="@+id/itemCardView">
+
+
+    <!-- Añadir tamaño fijo cardview-->
+
+    <ImageView
+        android:layout_margin="16dp"
+        android:id="@+id/iVTechnicalIcon"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </ImageView>
+
+</com.google.android.material.card.MaterialCardView>
