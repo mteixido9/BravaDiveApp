@@ -1,16 +1,13 @@
 package com.example.bravadiveapp
 
 import android.app.Application
-import android.util.Log
+import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.bravadiveapp.activity.MapsActivity
 import com.facebook.stetho.Stetho
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class App : Application() {
@@ -20,10 +17,10 @@ class App : Application() {
         private var db: AppDatabase? = null
 
         //Funcion para crear el db sino esta creado. Lo comprovamos con el let.
-        fun getDatabase(application: Application): AppDatabase {
+        fun getDatabase(context: Context): AppDatabase {
             db?.let { return it }
 
-            db = Room.databaseBuilder(application, AppDatabase::class.java, "main.db")
+            db = Room.databaseBuilder(context, AppDatabase::class.java, "main.db")
                 .addCallback(getCallback())
                 .build()
             return db as AppDatabase
@@ -66,7 +63,6 @@ class App : Application() {
                             spots = it.spotDao().getAll()
                         }
 
-
                         //Creamos los SpotImage y los relacionamos con su Spoti id.
                         val imageSpots: List<SpotImage> = listOf(
                             SpotImage(R.mipmap.image_test_1, spots[0].spotId),
@@ -93,46 +89,71 @@ class App : Application() {
                         //Añado los SpotImage al DB.
                         App.db?.spotImageDao()?.insertAll(imageSpots)
 
+                        var iconList: List<Icon> = listOf(
+                            /*0*/Icon("Precoralígeno",R.drawable.ic_starfish),
+                            /*1*/Icon("Fondeo",R.drawable.ic_anchor),
+                            /*2*/ Icon("Fondeo Fijo",R.drawable.ic_boya),
+                            /*3*/ Icon("Elevado consumo de Oxigeno",R.drawable.ic_consumo_oxigeno),
+                            /*4*/ Icon("Corriente frecuente",R.drawable.ic_corriente),
+                            /*5*/ Icon("Aconsejado el uso de Linterna",R.drawable.ic_luz_de_buceo),
+                            /*6*/ Icon("Parada de descompresión",R.drawable.ic_parada_descompresio),
+                            /*7*/ Icon("Acceso por playa",R.drawable.ic_beach),
+                            /*8*/ Icon("Fondo de roca",R.drawable.ic_rocas),
+                            /*9*/ Icon("Fondo de arena",R.drawable.ic_sand),
+                            /*10*/ Icon("Paso frecuente de embarcaciones",R.drawable.ic_embarcaciones_frecuentes),
+                            /*11*/ Icon("Vientos desfavorables",R.drawable.ic_vientos_desfavorables),
+                            /*12*/ Icon("Profundidad maxima",R.drawable.ic_prof_max),
+                            /*13*/ Icon("Pradera de posidonia",R.drawable.ic_posidonia),
+                            /*14*/ Icon("Recomendado para Nocturna",R.drawable.ic_nocturna_clean),
+                            /*15*/ Icon("Coralígeno",R.drawable.ic_coral),
+                        )
+
+                        //Añado los IconList al DB.
+                        App.db?.iconDao()?.insertAll(iconList)
+                        App.db?.let {
+                            iconList = it.iconDao().getAll()
+                        }
+
                         //Creamos los SpotIcons y los relacionamos con su Spot id.
                         val iconSpots: List<SpotIcon> = listOf(
-                            SpotIcon(R.drawable.ic_starfish, spots[0].spotId,"Precoralígeno"),
-                            SpotIcon(R.drawable.ic_anchor, spots[0].spotId,"Fondeo"),
-                            SpotIcon(R.drawable.ic_boya, spots[0].spotId,"Fondeo fijo"),
-                            SpotIcon(R.drawable.ic_consumo_oxigeno, spots[0].spotId,"Elevado consumo de Oxigeno"),
-                            SpotIcon(R.drawable.ic_corriente, spots[0].spotId,"Corriente frecuente"),
-                            SpotIcon(R.drawable.ic_luz_de_buceo, spots[0].spotId,"Recomendado uso de Linterna"),
-                            SpotIcon(R.drawable.ic_parada_descompresio, spots[1].spotId,"Parada de descompresión"),
-                            SpotIcon(R.drawable.ic_beach, spots[1].spotId,"Entrada por playa"),
-                            SpotIcon(R.drawable.ic_rocas, spots[1].spotId,"Fondo de roca"),
-                            SpotIcon(R.drawable.ic_sand, spots[1].spotId, "Fondo de arena"),
-                            SpotIcon(R.drawable.ic_starfish, spots[1].spotId,"Precogalígeno"),
-                            SpotIcon(R.drawable.ic_embarcaciones_frecuentes, spots[1].spotId,"Paso frecuente de embarcaciones"),
-                            SpotIcon(R.drawable.ic_vientos_desfavorables, spots[1].spotId,"Vientos desfavorables frecuentes"),
-                            SpotIcon(R.drawable.ic_prof_max, spots[2].spotId,"profundidad maxima"),
-                            SpotIcon(R.drawable.ic_posidonia, spots[2].spotId,"Pradera de de posidonia"),
-                            SpotIcon(R.drawable.ic_nocturna_clean, spots[2].spotId,"Adecuado para nocturna"),
-                            SpotIcon(R.drawable.ic_corriente, spots[2].spotId,"Corrientes frecuentes"),
-                            SpotIcon(R.drawable.ic_anchor, spots[2].spotId,"Fondeo"),
-                            SpotIcon(R.drawable.ic_parada_descompresio, spots[2].spotId,"Parada de descompresión"),
-                            SpotIcon(R.drawable.ic_consumo_oxigeno, spots[2].spotId,"Elevado consumo de Oxigeno"),
-                            SpotIcon(R.drawable.ic_posidonia, spots[3].spotId,"Pradera de posidonia"),
-                            SpotIcon(R.drawable.ic_embarcaciones_frecuentes, spots[3].spotId,"Paso frecuente de embarcaciones"),
-                            SpotIcon(R.drawable.ic_coral, spots[3].spotId,"Coralígeno"),
-                            SpotIcon(R.drawable.ic_corriente, spots[3].spotId,"Corrientes frecuentes"),
-                            SpotIcon(R.drawable.ic_boya, spots[3].spotId,"Fondeo Fijo"),
-                            SpotIcon(R.drawable.ic_starfish, spots[3].spotId,"Precogalígeno"),
-                            SpotIcon(R.drawable.ic_parada_descompresio, spots[4].spotId,"Parada de descompresión"),
-                            SpotIcon(R.drawable.ic_anchor, spots[4].spotId,"Fondeo"),
-                            SpotIcon(R.drawable.ic_nocturna_clean, spots[4].spotId,"Adecuado para nocturna"),
-                            SpotIcon(R.drawable.ic_luz_de_buceo, spots[4].spotId,"Recomendado uso de Linterna"),
-                            SpotIcon(R.drawable.ic_vientos_desfavorables, spots[4].spotId,"Vientos desfavorables frecuentes"),
-                            SpotIcon(R.drawable.ic_starfish, spots[4].spotId,"Precoralígeno"),
-                            SpotIcon(R.drawable.ic_beach, spots[5].spotId,"Entrada por playa"),
-                            SpotIcon(R.drawable.ic_posidonia, spots[5].spotId,"Pradera de de posidonia"),
-                            SpotIcon(R.drawable.ic_consumo_oxigeno, spots[5].spotId,"Elevado consumo de Oxigeno"),
-                            SpotIcon(R.drawable.ic_coral, spots[5].spotId,"Coralígeno"),
-                            SpotIcon(R.drawable.ic_sand, spots[5].spotId,"Fondo de Arena"),
-                            SpotIcon(R.drawable.ic_prof_max, spots[5].spotId,"Profundidad maxima")
+                            SpotIcon(iconList[0].iconId, spots[0].spotId),
+                            SpotIcon(iconList[1].iconId, spots[0].spotId),
+                            SpotIcon(iconList[2].iconId, spots[0].spotId),
+                            SpotIcon(iconList[3].iconId, spots[0].spotId),
+                            SpotIcon(iconList[4].iconId, spots[0].spotId),
+                            SpotIcon(iconList[5].iconId, spots[0].spotId),
+                            SpotIcon(iconList[6].iconId, spots[1].spotId),
+                            SpotIcon(iconList[7].iconId, spots[1].spotId),
+                            SpotIcon(iconList[8].iconId, spots[1].spotId),
+                            SpotIcon(iconList[9].iconId, spots[1].spotId),
+                            SpotIcon(iconList[0].iconId, spots[1].spotId),
+                            SpotIcon(iconList[10].iconId, spots[1].spotId),
+                            SpotIcon(iconList[11].iconId, spots[1].spotId),
+                            SpotIcon(iconList[12].iconId, spots[2].spotId),
+                            SpotIcon(iconList[13].iconId, spots[2].spotId),
+                            SpotIcon(iconList[14].iconId, spots[2].spotId),
+                            SpotIcon(iconList[5].iconId, spots[2].spotId),
+                            SpotIcon(iconList[1].iconId, spots[2].spotId),
+                            SpotIcon(iconList[7].iconId, spots[2].spotId),
+                            SpotIcon(iconList[4].iconId, spots[2].spotId),
+                            SpotIcon(iconList[14].iconId, spots[3].spotId),
+                            SpotIcon(iconList[11].iconId, spots[3].spotId),
+                            SpotIcon(iconList[15].iconId, spots[3].spotId),
+                            SpotIcon(iconList[5].iconId, spots[3].spotId),
+                            SpotIcon(iconList[2].iconId, spots[3].spotId),
+                            SpotIcon(iconList[0].iconId, spots[3].spotId),
+                            SpotIcon(iconList[7].iconId, spots[4].spotId),
+                            SpotIcon(iconList[1].iconId, spots[4].spotId),
+                            SpotIcon(iconList[15].iconId, spots[4].spotId),
+                            SpotIcon(iconList[6].iconId, spots[4].spotId),
+                            SpotIcon(iconList[12].iconId, spots[4].spotId),
+                            SpotIcon(iconList[0].iconId, spots[4].spotId),
+                            SpotIcon(iconList[12].iconId, spots[5].spotId),
+                            SpotIcon(iconList[14].iconId, spots[5].spotId),
+                            SpotIcon(iconList[4].iconId, spots[5].spotId),
+                            SpotIcon(iconList[15].iconId, spots[5].spotId),
+                            SpotIcon(iconList[10].iconId, spots[5].spotId),
+                            SpotIcon(iconList[13].iconId, spots[5].spotId)
                         )
 
                         //Añado los IconSpots al Db.
@@ -151,6 +172,7 @@ class App : Application() {
 
         //Iniciamos Stettho
         Stetho.initializeWithDefaults(this)
+
         //Creamos la base de datos.
         getDatabase(this)
     }

@@ -20,15 +20,11 @@ class ViewPagerAdapter(val spotImageList: List<SpotImage>) : RecyclerView.Adapte
 
     override fun getItemCount(): Int {
         return spotImageList.size
-
     }
 
     override fun onBindViewHolder(holder: ViewPagerViewHolder, position: Int) {
-    val spotImage = spotImageList[position]
+        val spotImage = spotImageList[position]
         holder.itemView.iVfragment.setImageResource(spotImage.imageid)
     }
-
-
-
 
 }

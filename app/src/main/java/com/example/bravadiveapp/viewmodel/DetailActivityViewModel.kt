@@ -3,8 +3,8 @@ package com.example.bravadiveapp.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.example.bravadiveapp.App
+import com.example.bravadiveapp.Icon
 import com.example.bravadiveapp.Spot
-import com.example.bravadiveapp.SpotIcon
 import com.example.bravadiveapp.SpotImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,9 +18,16 @@ class DetailActivityViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    suspend fun getIcons(spotId: Int): List<SpotIcon> {
+    suspend fun getIcons(spotId: Int): List<Icon> {
         return withContext(Dispatchers.IO) {
-            return@withContext App.getDatabase(getApplication()).spotIconDao().loadSpotIconById(spotId)
+
+            val spotIconList = App.getDatabase(getApplication()).spotIconDao().loadSpotIconBySpotId(spotId)
+
+            val iconList = mutableListOf<Icon>()
+
+            spotIconList.forEach {iconList.add(App.getDatabase(getApplication()).iconDao().loadIconById(it.fkIconId))}
+
+            return@withContext iconList
         }
     }
 

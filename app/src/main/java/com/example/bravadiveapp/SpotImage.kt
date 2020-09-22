@@ -16,5 +16,4 @@ data class SpotImage (var imageid: Int, var fkSpotId: Int){
     @PrimaryKey(autoGenerate = true)
 
     var spotImageId : Int = 0
-
 }

@@ -4,11 +4,13 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import com.example.bravadiveapp.Icon
 import com.example.bravadiveapp.R
 import com.example.bravadiveapp.Spot
 import com.example.bravadiveapp.adapter.DropDownAdapter
@@ -20,16 +22,12 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import kotlinx.android.synthetic.main.activity_detail.iVLogo
 import kotlinx.android.synthetic.main.activity_maps.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var viewModel: MapsActivityViewModel
-
 
     companion object {
         fun getIntent(context: Context): Intent {
@@ -38,7 +36,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-
+    var iconsList = listOf<Icon>()
 
     private lateinit var mMap: GoogleMap
 
@@ -55,8 +53,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         iVLogo.setImageResource(R.mipmap.brava_dive_oval)
 
         // Adding the adatper to the spinner
-        val dropDownAdapter = DropDownAdapter(this)
-        spinner.adapter = dropDownAdapter
+        createSpinner()
+
 
         spinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
 
@@ -65,17 +63,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
+                parent: AdapterView<*>?, view: View?, position: Int, id: Long
             ) {
                 CoroutineScope(Dispatchers.IO).launch {
 
-                    if( id.toInt() == R.drawable.ic_filtrar){
+                    if (id == -1L) {
                         val spotByIconList = viewModel.getSpotList()
                         updateMap(spotByIconList, false)
-                    }else{
+                    } else {
                         val spotByIconList = viewModel.getSpotByIcon(id.toInt())
 
                         updateMap(spotByIconList, false)
@@ -83,22 +78,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 }
             }
-
-
         }
     }
+
 
     override fun onResume() {
         super.onResume()
 
         CoroutineScope(Dispatchers.IO).launch {
             //Updating map
+
             updateMap(viewModel.getSpotList(), false)
         }
-
-
     }
-
 
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -112,7 +104,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     fun getMarkerIcon(colorId: Int): BitmapDescriptor? {
         val hsv = FloatArray(3)
-       val color= ContextCompat.getColor(this,colorId)
+        val color = ContextCompat.getColor(this, colorId)
 
         Color.colorToHSV(color, hsv)
         return BitmapDescriptorFactory.defaultMarker(hsv[0])
@@ -127,14 +119,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             //Leemos todos los spots de db, hacemos un for y creamos un marker para cada spot con su LatLng y titulo. Luego lo añadimos a una lista.
             spotList.forEach {
-                val marker = MarkerOptions().position(LatLng(it.latitude.toDouble(), it.longitude.toDouble())).title(it.name)
+                val marker = MarkerOptions().position(
+                    LatLng(
+                        it.latitude.toDouble(),
+                        it.longitude.toDouble()
+                    )
+                ).title(it.name)
                 marker.title(it.name).snippet(it.done.toString())
 
 
                 //Cambio de color el marker
-                if(it.done){
+                if (it.done) {
                     marker.icon(getMarkerIcon(R.color.bright_green))
-                }else{
+                } else {
                     marker.icon(getMarkerIcon(R.color.darkBlue))
                 }
 
@@ -144,16 +141,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             //Zoom mínimo y typo de mapa.
 
-            if(markerList.isNotEmpty() && zoom){
+            if (markerList.isNotEmpty() && zoom) {
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(markerList[0].position))
             }
             mMap.setMinZoomPreference(10.5f)
             mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
 
-
             //Seteamos la navegacion mediante el marker al DetailActivity.
-
-
             mMap.setOnMarkerClickListener { marker ->
                 marker.title?.let { markerTitle ->
                     spotList.forEach {
@@ -163,9 +157,32 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 true
             }
-
         }
     }
+    fun createSpinner(){
 
+        CoroutineScope(Dispatchers.Main).launch {
+
+            iconsList = viewModel.getIconList()
+            Log.w("MARC", iconsList.size.toString())
+
+            if (iconsList.size == 1) {
+                delay(1000)
+                createSpinner()
+            }else{
+
+                withContext(Dispatchers.Main) {
+
+                    val dropDownAdapter = DropDownAdapter(this@MapsActivity, iconsList)
+                    spinner.adapter = dropDownAdapter
+                }
+
+
+            }
+
+        }
+
+
+    }
 
 }

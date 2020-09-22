@@ -10,52 +10,46 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bravadiveapp.App
+import com.example.bravadiveapp.Icon
 import com.example.bravadiveapp.R
 import com.example.bravadiveapp.SpotIcon
 
 
-class TechnicIconAdapter(val spotIconList: List<SpotIcon>, var context: Context) :
+class TechnicIconAdapter(val iconList: List<Icon>, var context: Context) :
     RecyclerView.Adapter<TechnicIconAdapter.TechnicIconViewHolder>() {
 
     // Creo la iconsList a partir de la lista del DropDownAdapter que he pasado como parametro. Asi puedo añadir el texto al Toast.
 
 
-
-    class TechnicIconViewHolder(root: View) : RecyclerView.ViewHolder(root){
+    class TechnicIconViewHolder(root: View) : RecyclerView.ViewHolder(root) {
 
         val iVTechnicalIcon = root.findViewById<ImageView>(R.id.iVTechnicalIcon)
 
-     fun updateIcon(icon: Int){
-         iVTechnicalIcon.setImageResource(icon)
+        fun updateIcon(icon: Icon) {
+            iVTechnicalIcon.setImageResource(icon.url)
 
-     }
+        }
     }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TechnicIconViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_technical_aspects, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_technical_aspects, parent, false)
 
         return TechnicIconViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: TechnicIconViewHolder, position: Int) {
-        holder.updateIcon(spotIconList[position].iconId)
+        holder.updateIcon(iconList[position])
         holder.iVTechnicalIcon.setOnClickListener {
-
-            //TODO buscar por id no por position. var iconId y filtrar por esto.
-
-                Toast.makeText(context,spotIconList[position].name, Toast.LENGTH_SHORT).apply { setGravity(Gravity.CENTER,0,180)}.show()
-
+            Toast.makeText(context, iconList[position].name, Toast.LENGTH_SHORT).apply { setGravity(Gravity.CENTER, 0, 180) }.show()
 
 
         }
-
     }
 
     override fun getItemCount(): Int {
-        return spotIconList.size
+        return iconList.size
     }
-
-
 }
 

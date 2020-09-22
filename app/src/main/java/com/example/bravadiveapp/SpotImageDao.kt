@@ -23,6 +23,4 @@ interface SpotImageDao {
 
     @Delete
     fun delete(spotImage: SpotImage)
-
-
 }

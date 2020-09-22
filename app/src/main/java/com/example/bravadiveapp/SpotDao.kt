@@ -7,7 +7,7 @@ interface SpotDao {
 
     @Query("SELECT * FROM Spot")
     fun getAll(): List<Spot>
-    //TODO get de varios filtros
+
 
     @Query("SELECT * FROM Spot WHERE spotId IN (:spotId)")
     fun loadSpotbyId(spotId: Int):Spot
@@ -20,7 +20,5 @@ interface SpotDao {
     fun update(spot: Spot)
     @Delete
     fun delete(spot: Spot)
-
-
 
 }

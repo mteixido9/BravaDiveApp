@@ -9,9 +9,9 @@ interface SpotIconDao {
     fun getAll(): List<SpotIcon>
 
     @Query("SELECT * FROM SpotIcon WHERE fkSpotId IN (:spotId)")
-    fun loadSpotIconById(spotId: Int):List<SpotIcon>
+    fun loadSpotIconBySpotId(spotId: Int):List<SpotIcon>
 
-    @Query("SELECT * FROM SpotIcon WHERE iconId IN (:iconId)")
+    @Query("SELECT * FROM SpotIcon WHERE fkIconId IN (:iconId)")
     fun loadSpotIconByIconId(iconId: Int):List<SpotIcon>
 
     @Insert
@@ -22,8 +22,4 @@ interface SpotIconDao {
     fun update(spotIcon: SpotIcon)
     @Delete
     fun delete(spotIcon: SpotIcon)
-
-
-
-
 }
